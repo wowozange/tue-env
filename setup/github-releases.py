@@ -5,9 +5,9 @@ import urllib2
 import json
 import re
 import argparse
+import os
 
 
-url = 'https://api.github.com/repos/tue-robotics/dashboard/releases'
 rs = json.loads(urllib2.urlopen(url).read())
 
 asset_re = re.compile(r'^dashboard(-.+)?-%s.tar.gz$' % v)
@@ -42,7 +42,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--url",
             dest="repo_short_url",
-            help="Short url of the github repository, eg: tue-robotics/tue-env",
+            help="Short url of the github repository without .git extension," \
+                    "eg: tue-robotics/tue-env",
             type=str)
 
     parser.add_argument("--tag",
@@ -57,6 +58,11 @@ if __name__ == "__main__":
                     "and getting releases)",
             type=str)
 
+    parser.add_argument("--tar-name,"
+            dest="tar_name",
+            help="Short name of the tar file to upload or download",
+            type=str)
+
     args = parser.parse_args()
 
     # When getting a release if no tag is specified then use "latest" as
@@ -69,6 +75,9 @@ if __name__ == "__main__":
         tag = args.tag
     else:
         raise Exception("Need release tag")
+
+    url = os.path.join(os.path.join("https://api.github.com/repos",
+        args.repo_short_url), "releases")
 
     if args.get_release:
         get_release(url, tag, data_dir)
